@@ -47,7 +47,7 @@ fn main() {
 
     println!("{}", reverse("Denis"));
 
-    let time: Clock = Clock::new(3, -20);
+    let time: Clock = Clock::new(0, 3).add_minutes(-4);
 
     println!("{}", time);
 }

@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 #[derive(Debug)]
 pub struct Clock {
     hours: i32,
@@ -51,7 +53,9 @@ impl Clock {
                 set_hours -= to_subtruct_hours;
             }
 
-            set_minutes = 60 - abs_min % 60;
+            let real_minutes = 60 - abs_min % 60;
+
+            set_minutes = if real_minutes == 60 { 0 } else { real_minutes };
         } else {
             set_minutes = minutes;
         }
@@ -63,21 +67,45 @@ impl Clock {
     }
 
     pub fn add_minutes(&self, minutes: i32) -> Self {
-        let new_minutes = self.minutes + minutes;
+        let minutes = self.minutes + minutes;
+        let mut set_hours = self.hours;
 
-        if new_minutes >= 60 {
-            let set_minutes = new_minutes % 60;
-            let set_hours = (new_minutes - set_minutes) / 60;
-            println!("{}", set_hours);
-            return Clock {
-                hours: (self.hours + set_hours) % 24,
-                minutes: set_minutes,
+        let set_minutes: i32;
+
+        if minutes >= 60 {
+            set_minutes = minutes % 60;
+            set_hours += (minutes - set_minutes) / 60;
+
+            if set_hours >= 24 {
+                set_hours = set_hours % 24;
+            }
+        } else if minutes < 0 {
+            let abs_min = minutes.abs();
+
+            let minutes_left = abs_min % 60;
+
+            let to_subtruct_hours = if minutes_left > 0 {
+                (abs_min - minutes_left) / 60 + 1
+            } else {
+                abs_min / 60
             };
+
+            set_hours = if self.hours - to_subtruct_hours < 0 {
+                24 - (self.hours - to_subtruct_hours).abs() % 24
+            } else {
+                self.hours - to_subtruct_hours
+            };
+
+            let real_minutes = 60 - abs_min % 60;
+
+            set_minutes = if real_minutes == 60 { 0 } else { real_minutes };
+        } else {
+            set_minutes = minutes;
         }
 
         return Clock {
-            hours: self.hours,
-            minutes: new_minutes,
+            hours: set_hours,
+            minutes: set_minutes,
         };
     }
 }
