@@ -1,9 +1,11 @@
 use std::collections::HashSet;
 use time::{Duration, PrimitiveDateTime as DateTime};
 
-use crate::clock::Clock;
+use crate::{clock::Clock, planet::Planet};
 
 pub mod clock;
+
+pub mod planet;
 
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
     let mut correct_anagrams: HashSet<&str> = HashSet::new();
@@ -50,4 +52,13 @@ fn main() {
     let time: Clock = Clock::new(0, 3).add_minutes(-4);
 
     println!("{}", time);
+
+    let duration = planet::Duration::from(2_134_835_688);
+
+    let in_jupiter_years = planet::Mercury::years_during(&duration);
+
+    println!(
+        "The duration is {:?} in jupiter years that would be {}",
+        duration, in_jupiter_years
+    );
 }

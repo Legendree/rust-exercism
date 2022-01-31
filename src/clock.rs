@@ -90,11 +90,13 @@ impl Clock {
                 abs_min / 60
             };
 
-            set_hours = if self.hours - to_subtruct_hours < 0 {
+            let real_hour = if self.hours - to_subtruct_hours < 0 {
                 24 - (self.hours - to_subtruct_hours).abs() % 24
             } else {
                 self.hours - to_subtruct_hours
             };
+
+            set_hours = if real_hour == 24 { 0 } else { real_hour };
 
             let real_minutes = 60 - abs_min % 60;
 
