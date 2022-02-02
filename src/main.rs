@@ -4,8 +4,8 @@ use time::{Duration, PrimitiveDateTime as DateTime};
 use crate::{clock::Clock, planet::Planet};
 
 pub mod clock;
-
 pub mod planet;
+pub mod sublist;
 
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
     let mut correct_anagrams: HashSet<&str> = HashSet::new();
@@ -42,23 +42,30 @@ pub fn after(start: DateTime) -> DateTime {
 }
 
 fn main() {
-    println!("Hello, world!");
-    let anagrams = anagrams_for("dick", &["ickd", "dick", "fickd", "retard", "faggot"]);
+    // println!("Hello, world!");
+    // let anagrams = anagrams_for("dick", &["ickd", "dick", "fickd", "retard", "faggot"]);
 
-    println!("anagrams are for dick are: {:?}", anagrams);
+    // println!("anagrams are for dick are: {:?}", anagrams);
 
-    println!("{}", reverse("Denis"));
+    // println!("{}", reverse("Denis"));
 
-    let time: Clock = Clock::new(0, 3).add_minutes(-4);
+    // let time: Clock = Clock::new(0, 3).add_minutes(-4);
 
-    println!("{}", time);
+    // println!("{}", time);
 
-    let duration = planet::Duration::from(2_134_835_688);
+    // let duration = planet::Duration::from(2_134_835_688);
 
-    let in_jupiter_years = planet::Mercury::years_during(&duration);
+    // let in_jupiter_years = planet::Mercury::years_during(&duration);
 
-    println!(
-        "The duration is {:?} in jupiter years that would be {}",
-        duration, in_jupiter_years
-    );
+    // println!(
+    //     "The duration is {:?} in jupiter years that would be {}",
+    //     duration, in_jupiter_years
+    // );
+
+    let v1: Vec<u64> = (10..1_000_001).collect();
+    let v2: Vec<u64> = (1..1_000_000).collect();
+
+    let type_of_sublist = sublist::sublist(&v1, &v2);
+
+    println!("{:?}", type_of_sublist);
 }
