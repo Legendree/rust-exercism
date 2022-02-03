@@ -54,8 +54,12 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
     let mut mine_field = minefield_mat.clone();
 
     for (j, y) in minefield_mat.iter().enumerate() {
-        for (i, _x) in y.iter().enumerate() {
-            count_horizontal(&mut mine_field, j, i, 0);
+        for (i, x) in y.iter().enumerate() {
+            if !contains_asterix(x) {
+                let horizontal_count = count_horizontal(&mine_field, j, i, 0);
+                println!("{}", horizontal_count);
+                mine_field[j][i] = horizontal_count;
+            }
         }
     }
 
@@ -70,29 +74,26 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
         .collect()
 }
 
-fn count_horizontal(mine_field: &mut Vec<Vec<u8>>, x: usize, y: usize, asterixes: u8) -> u8 {
+fn count_horizontal(mine_field: &Vec<Vec<u8>>, x: usize, y: usize, asterixes: u8) -> u8 {
     if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
-        let mine = mine_field[y][x];
-        let new_asterix_count = if contains_asterix(mine) {
+        let location = mine_field[y][x];
+        let new_asterix_count = if contains_asterix(&location) {
             asterixes + 1
         } else {
             asterixes
         };
         return count_horizontal(mine_field, x + 1, y + 1, new_asterix_count);
     } else {
-        mine_field[y - 1][x - 1] = format!("{}", asterixes).as_bytes()[0];
         return asterixes;
     }
-
-    asterixes
 }
 
-fn contains_asterix(byte: u8) -> bool {
-    byte.to_string() == "*".to_string()
+fn contains_asterix(byte: &u8) -> bool {
+    *byte as char == '*'
 }
 
 fn is_pos_available<T>(slice: &[T], index: usize) -> bool {
-    !(slice.len() <= index)
+    slice.len() > index
 }
 
 /// End of minesweeper
@@ -121,11 +122,17 @@ fn main() {
     let v1: Vec<u64> = (10..1_000_001).collect();
     let v2: Vec<u64> = (1..1_000_000).collect();
 
-    let mines = ["1*22*1", "12*322", " 123*2", "112*4*", "1*22*2", "111111"];
+    let mines = ["·*·*·", "··*··", "··*··", "·····"];
 
     let type_of_sublist = sublist::sublist(&v1, &v2);
 
     println!("{:?}", type_of_sublist);
 
-    annotate(&mines);
+    let minesweeper = annotate(&mines);
+    println!("{:?}", &minesweeper);
 }
+
+//          · * · * ·
+//          · · * · ·
+//          · · * · ·
+//          · · · · ·
