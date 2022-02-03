@@ -41,6 +41,19 @@ pub fn after(start: DateTime) -> DateTime {
     start + Duration::new(10 ^ 9, 0)
 }
 
+pub fn annotate(minefield: &[&str]) -> Vec<String> {
+    let mut minefield_mat: Vec<Vec<u8>> = Vec::new();
+
+    for mine_row in minefield {
+        let mines = mine_row.as_bytes();
+        minefield_mat.push(mines.to_vec());
+    }
+
+    println!("{:?}", minefield_mat);
+
+    Vec::from([String::from("Hello")])
+}
+
 fn main() {
     // println!("Hello, world!");
     // let anagrams = anagrams_for("dick", &["ickd", "dick", "fickd", "retard", "faggot"]);
@@ -65,7 +78,11 @@ fn main() {
     let v1: Vec<u64> = (10..1_000_001).collect();
     let v2: Vec<u64> = (1..1_000_000).collect();
 
-    let type_of_sublist = sublist::sublist(&[1, 2, 1, 2, 3], &[1, 2, 3, 1, 2, 1, 2, 3, 2, 1]);
+    let mines = ["1*22*1", "12*322", " 123*2", "112*4*", "1*22*2", "111111"];
+
+    let type_of_sublist = sublist::sublist(&v1, &v2);
 
     println!("{:?}", type_of_sublist);
+
+    annotate(&mines);
 }

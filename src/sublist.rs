@@ -25,35 +25,32 @@ pub fn sublist<T: PartialEq + std::fmt::Debug + std::clone::Clone + Copy + Ord>(
         return Comparison::Superlist;
     }
 
-    println!("{}, {}", _first_list.len(), _second_list.len());
+    let mut last_index: usize;
+    let mut start_index: usize;
 
     if _first_list.len() < _second_list.len() {
-        let mut last_index: usize;
-        let mut start_index: usize;
-
         loop {
-            start_index = _second_list
-                .iter()
-                .position(|i| i == &_first_list[0])
-                .unwrap();
+            start_index = match _second_list.iter().position(|i| i == &_first_list[0]) {
+                Some(v) => v,
+                None => {
+                    return Comparison::Unequal;
+                }
+            };
 
-            if &_second_list[start_index + _first_list.len() - 1] == _first_list.last().unwrap() {
-                last_index = start_index + _first_list.len();
+            last_index = if start_index + _first_list.len() > _second_list.len() {
+                _second_list.len()
+            } else {
+                start_index + _first_list.len()
+            };
+
+            if &_second_list[last_index - 1] == _first_list.last().unwrap() {
                 break;
             } else {
                 _second_list.remove(start_index);
             }
         }
 
-        last_index = if start_index + _first_list.len() - 1 > _second_list.len() {
-            _second_list.len()
-        } else {
-            last_index
-        };
-
         let assert_to_list = &_second_list[start_index..last_index].to_vec();
-
-        println!("VALUE 1 : {:?} {:?}", _first_list, assert_to_list);
 
         if _first_list == *assert_to_list {
             Comparison::Sublist
@@ -61,20 +58,26 @@ pub fn sublist<T: PartialEq + std::fmt::Debug + std::clone::Clone + Copy + Ord>(
             Comparison::Unequal
         }
     } else if _first_list.len() > _second_list.len() {
-        let start_index = _first_list
-            .iter()
-            .position(|i| i == &_second_list[0])
-            .unwrap();
+        loop {
+            start_index = match _first_list.iter().position(|i| i == &_second_list[0]) {
+                Some(v) => v,
+                None => return Comparison::Unequal,
+            };
 
-        let last_index = if start_index + _second_list.len() > _first_list.len() {
-            _first_list.len() - start_index
-        } else {
-            start_index + _second_list.len()
-        };
+            last_index = if start_index + _second_list.len() > _first_list.len() {
+                _first_list.len()
+            } else {
+                start_index + _second_list.len()
+            };
+
+            if &_first_list[last_index - 1] == _second_list.last().unwrap() {
+                break;
+            } else {
+                _second_list.remove(start_index);
+            }
+        }
 
         let assert_to_list = &_first_list[start_index..last_index];
-
-        println!("VALUE 2 : {:?} {:?}", _second_list, assert_to_list);
 
         if _second_list == assert_to_list {
             Comparison::Superlist
