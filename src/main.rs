@@ -41,6 +41,8 @@ pub fn after(start: DateTime) -> DateTime {
     start + Duration::new(10 ^ 9, 0)
 }
 
+/// Minesweeper
+
 pub fn annotate(minefield: &[&str]) -> Vec<String> {
     let mut minefield_mat: Vec<Vec<u8>> = Vec::new();
 
@@ -49,10 +51,51 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
         minefield_mat.push(mines.to_vec());
     }
 
-    println!("{:?}", minefield_mat);
+    let mut mine_field = minefield_mat.clone();
 
-    Vec::from([String::from("Hello")])
+    for (j, y) in minefield_mat.iter().enumerate() {
+        for (i, _x) in y.iter().enumerate() {
+            count_horizontal(&mut mine_field, j, i, 0);
+        }
+    }
+
+    mine_field
+        .iter()
+        .map(|row| {
+            let mut stringified_mine_row = String::new();
+            row.iter()
+                .for_each(|byte| stringified_mine_row.push(*byte as char));
+            stringified_mine_row
+        })
+        .collect()
 }
+
+fn count_horizontal(mine_field: &mut Vec<Vec<u8>>, x: usize, y: usize, asterixes: u8) -> u8 {
+    if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
+        let mine = mine_field[y][x];
+        let new_asterix_count = if contains_asterix(mine) {
+            asterixes + 1
+        } else {
+            asterixes
+        };
+        return count_horizontal(mine_field, x + 1, y + 1, new_asterix_count);
+    } else {
+        mine_field[y - 1][x - 1] = format!("{}", asterixes).as_bytes()[0];
+        return asterixes;
+    }
+
+    asterixes
+}
+
+fn contains_asterix(byte: u8) -> bool {
+    byte.to_string() == "*".to_string()
+}
+
+fn is_pos_available<T>(slice: &[T], index: usize) -> bool {
+    !(slice.len() <= index)
+}
+
+/// End of minesweeper
 
 fn main() {
     // println!("Hello, world!");
