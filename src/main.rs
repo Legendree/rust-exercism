@@ -65,7 +65,7 @@ fn main() {
     let v1: Vec<u64> = (10..1_000_001).collect();
     let v2: Vec<u64> = (1..1_000_000).collect();
 
-    let type_of_sublist = sublist::sublist(&v1, &v2);
+    let type_of_sublist = sublist::sublist(&[1, 2, 1, 2, 3], &[1, 2, 3, 1, 2, 1, 2, 3, 2, 1]);
 
     println!("{:?}", type_of_sublist);
 }

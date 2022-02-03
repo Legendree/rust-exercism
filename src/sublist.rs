@@ -28,15 +28,27 @@ pub fn sublist<T: PartialEq + std::fmt::Debug + std::clone::Clone + Copy + Ord>(
     println!("{}, {}", _first_list.len(), _second_list.len());
 
     if _first_list.len() < _second_list.len() {
-        let start_index = _second_list
-            .iter()
-            .position(|i| i == &_first_list[0])
-            .unwrap();
+        let mut last_index: usize;
+        let mut start_index: usize;
 
-        let last_index = if start_index + _first_list.len() > _second_list.len() {
-            _second_list.len() - start_index
+        loop {
+            start_index = _second_list
+                .iter()
+                .position(|i| i == &_first_list[0])
+                .unwrap();
+
+            if &_second_list[start_index + _first_list.len() - 1] == _first_list.last().unwrap() {
+                last_index = start_index + _first_list.len();
+                break;
+            } else {
+                _second_list.remove(start_index);
+            }
+        }
+
+        last_index = if start_index + _first_list.len() - 1 > _second_list.len() {
+            _second_list.len()
         } else {
-            start_index + _first_list.len()
+            last_index
         };
 
         let assert_to_list = &_second_list[start_index..last_index].to_vec();
