@@ -70,10 +70,13 @@ fn main() {
 
     //    println!("{:?}", type_of_sublist);
 
-    let mines = ["·*·*·", "··*··", "··*··", "·····"];
+    let mines = [" * * ", "  *  ", "  *  ", "     "];
 
     let minesweeper = minesweeper::annotate(&mines);
-    println!("{:?}", &minesweeper);
+
+    for mine_row in minesweeper {
+        println!("{:?}", mine_row);
+    }
 }
 
 //          · * · * ·

@@ -1,35 +1,68 @@
 pub fn annotate(minefield: &[&str]) -> Vec<String> {
-    let mut minefield_mat: Vec<Vec<u8>> = Vec::new();
+    let mut minefield_mat: Vec<Vec<&str>> = Vec::new();
 
     for mine_row in minefield {
-        let mines = mine_row.as_bytes();
-        minefield_mat.push(mines.to_vec());
+        let mines: Vec<&str> = mine_row.split("").collect();
+        minefield_mat.push(mines[1..mines.len() - 1].to_vec());
     }
 
+    println!("{:?}", &minefield_mat);
+
     let mut mine_field = minefield_mat.clone();
+
+    println!("{:?}", &mine_field);
 
     for (j, y) in minefield_mat.iter().enumerate() {
         for (i, x) in y.iter().enumerate() {
             if !contains_asterix(x) {
-                let total_count = count_horizontal(&mine_field, i, j);
-                mine_field[j][i] = get_desired_char_for_mine(total_count);
+                let total_count = count_diagnol(&mine_field, i, j)
+                    + count_vertical(&mine_field, i, j)
+                    + count_horizontal(&mine_field, i, j);
+                let desired_character = get_desired_char_for_mine(&total_count);
+                mine_field[j][i] = Box::leak(desired_character.into_boxed_str());
+            } else {
+                println!("skipped y: {}, x: {} has asterix", j, i);
             }
         }
     }
 
-    mine_field
-        .iter()
-        .map(|row| {
-            let mut stringified_mine_row = String::new();
-            row.iter()
-                .for_each(|byte| stringified_mine_row.push(*byte as char));
-            stringified_mine_row
-        })
-        .collect()
+    mine_field.iter().map(|row| row.join("")).collect()
 }
 
-fn count_horizontal(mine_field: &Vec<Vec<u8>>, x: usize, y: usize) -> u8 {
-    let horizontal_possibilities: [(i8, i8); 4] = [(1, 1), (-1, -1), (-1, 1), (1, -1)];
+fn count_diagnol(mine_field: &Vec<Vec<&str>>, x: usize, y: usize) -> u8 {
+    let diagnol_possibilities: [(i8, i8); 4] = [(1, 1), (-1, -1), (-1, 1), (1, -1)];
+    let mut asterixes: u8 = 0;
+
+    for possibility in diagnol_possibilities {
+        let (y, x) = match get_coordinates(&possibility, &x, &y) {
+            Ok((y, x)) => (y, x),
+            Err(_) => continue,
+        };
+
+        count_asterixes(mine_field, x, y, &mut asterixes);
+    }
+
+    return asterixes;
+}
+
+fn count_vertical(mine_field: &Vec<Vec<&str>>, x: usize, y: usize) -> u8 {
+    let vertical_possibilities: [(i8, i8); 2] = [(0, -1), (0, 1)];
+    let mut asterixes: u8 = 0;
+
+    for possibility in vertical_possibilities {
+        let (y, x) = match get_coordinates(&possibility, &x, &y) {
+            Ok((y, x)) => (y, x),
+            Err(_) => continue,
+        };
+
+        count_asterixes(mine_field, x, y, &mut asterixes);
+    }
+
+    return asterixes;
+}
+
+fn count_horizontal(mine_field: &Vec<Vec<&str>>, x: usize, y: usize) -> u8 {
+    let horizontal_possibilities: [(i8, i8); 2] = [(-1, 0), (1, 0)];
     let mut asterixes: u8 = 0;
 
     for possibility in horizontal_possibilities {
@@ -38,51 +71,25 @@ fn count_horizontal(mine_field: &Vec<Vec<u8>>, x: usize, y: usize) -> u8 {
             Err(_) => continue,
         };
 
-        if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
-            let location = mine_field[y][x];
-            if contains_asterix(&location) {
-                asterixes += 1;
-            }
-        }
+        count_asterixes(mine_field, x, y, &mut asterixes);
     }
 
     return asterixes;
 }
 
-fn count_vertical(mine_field: &Vec<Vec<u8>>, x: usize, y: usize) -> u8 {
-    let vertical_possibilities: [i8; 2] = [-1, 1];
-    let mut asterixes: u8 = 0;
-
-    for possibility in vertical_possibilities {
-        let (y, x) = match get_coordinates(&(y as i8 + possibility, x as i8), &x, &y) {
-            Ok((y, x)) => (y, x),
-            Err(_) => continue,
-        };
-
-        if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
-            let location = mine_field[y][x];
-            if contains_asterix(&location) {
-                asterixes += 1;
-            }
-        }
-    }
-
-    return asterixes;
-}
-
-fn contains_asterix(byte: &u8) -> bool {
-    *byte as char == '*'
+fn contains_asterix(character: &str) -> bool {
+    character == "*"
 }
 
 fn is_pos_available<T>(slice: &[T], index: usize) -> bool {
     slice.len() > index
 }
 
-fn get_desired_char_for_mine(asterixes: u8) -> u8 {
-    if asterixes > 0 {
-        asterixes
+fn get_desired_char_for_mine(asterixes_count: &u8) -> String {
+    if *asterixes_count > 0 {
+        format!("{}", &asterixes_count)
     } else {
-        String::from(" ").as_bytes()[0]
+        "  ".to_string()
     }
 }
 
@@ -101,4 +108,14 @@ fn get_coordinates(
     };
 
     Ok((y, x))
+}
+
+fn count_asterixes(mine_field: &Vec<Vec<&str>>, x: usize, y: usize, asterixes: &mut u8) {
+    if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
+        let location = mine_field[y][x];
+        println!("{}", location);
+        if contains_asterix(&location) {
+            *asterixes += 1;
+        }
+    }
 }
