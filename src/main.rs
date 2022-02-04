@@ -77,6 +77,10 @@ fn main() {
     for mine_row in minesweeper {
         println!("{:?}", mine_row);
     }
+
+    let mines = [" * * ", "  *  ", "  *  ", "     "];
+
+    let splitted: Vec<&str> = mines.split("").collect();
 }
 
 //          · * · * ·

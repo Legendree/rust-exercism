@@ -6,11 +6,7 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
         minefield_mat.push(mines[1..mines.len() - 1].to_vec());
     }
 
-    println!("{:?}", &minefield_mat);
-
     let mut mine_field = minefield_mat.clone();
-
-    println!("{:?}", &mine_field);
 
     for (j, y) in minefield_mat.iter().enumerate() {
         for (i, x) in y.iter().enumerate() {
@@ -20,13 +16,20 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
                     + count_horizontal(&mine_field, i, j);
                 let desired_character = get_desired_char_for_mine(&total_count);
                 mine_field[j][i] = Box::leak(desired_character.into_boxed_str());
-            } else {
-                println!("skipped y: {}, x: {} has asterix", j, i);
             }
         }
     }
 
-    mine_field.iter().map(|row| row.join("")).collect()
+    println!("{:?}", mine_field);
+
+    mine_field
+        .iter()
+        .map(|row| {
+            let to_return = row.join("");
+            println!("{}", to_return);
+            row.join("")
+        })
+        .collect()
 }
 
 fn count_diagnol(mine_field: &Vec<Vec<&str>>, x: usize, y: usize) -> u8 {
@@ -113,7 +116,6 @@ fn get_coordinates(
 fn count_asterixes(mine_field: &Vec<Vec<&str>>, x: usize, y: usize, asterixes: &mut u8) {
     if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
         let location = mine_field[y][x];
-        println!("{}", location);
         if contains_asterix(&location) {
             *asterixes += 1;
         }
