@@ -4,6 +4,7 @@ use time::{Duration, PrimitiveDateTime as DateTime};
 use crate::{clock::Clock, planet::Planet};
 
 pub mod clock;
+pub mod minesweeper;
 pub mod planet;
 pub mod sublist;
 
@@ -41,63 +42,6 @@ pub fn after(start: DateTime) -> DateTime {
     start + Duration::new(10 ^ 9, 0)
 }
 
-/// Minesweeper
-
-pub fn annotate(minefield: &[&str]) -> Vec<String> {
-    let mut minefield_mat: Vec<Vec<u8>> = Vec::new();
-
-    for mine_row in minefield {
-        let mines = mine_row.as_bytes();
-        minefield_mat.push(mines.to_vec());
-    }
-
-    let mut mine_field = minefield_mat.clone();
-
-    for (j, y) in minefield_mat.iter().enumerate() {
-        for (i, x) in y.iter().enumerate() {
-            if !contains_asterix(x) {
-                let horizontal_count = count_horizontal(&mine_field, j, i, 0);
-                println!("{}", horizontal_count);
-                mine_field[j][i] = horizontal_count;
-            }
-        }
-    }
-
-    mine_field
-        .iter()
-        .map(|row| {
-            let mut stringified_mine_row = String::new();
-            row.iter()
-                .for_each(|byte| stringified_mine_row.push(*byte as char));
-            stringified_mine_row
-        })
-        .collect()
-}
-
-fn count_horizontal(mine_field: &Vec<Vec<u8>>, x: usize, y: usize, asterixes: u8) -> u8 {
-    if is_pos_available(mine_field, y) && is_pos_available(&mine_field[y], x) {
-        let location = mine_field[y][x];
-        let new_asterix_count = if contains_asterix(&location) {
-            asterixes + 1
-        } else {
-            asterixes
-        };
-        return count_horizontal(mine_field, x + 1, y + 1, new_asterix_count);
-    } else {
-        return asterixes;
-    }
-}
-
-fn contains_asterix(byte: &u8) -> bool {
-    *byte as char == '*'
-}
-
-fn is_pos_available<T>(slice: &[T], index: usize) -> bool {
-    slice.len() > index
-}
-
-/// End of minesweeper
-
 fn main() {
     // println!("Hello, world!");
     // let anagrams = anagrams_for("dick", &["ickd", "dick", "fickd", "retard", "faggot"]);
@@ -119,16 +63,16 @@ fn main() {
     //     duration, in_jupiter_years
     // );
 
-    let v1: Vec<u64> = (10..1_000_001).collect();
-    let v2: Vec<u64> = (1..1_000_000).collect();
+    //    let v1: Vec<u64> = (10..1_000_001).collect();
+    //    let v2: Vec<u64> = (1..1_000_000).collect();
+
+    // let type_of_sublist = sublist::sublist(&v1, &v2);
+
+    //    println!("{:?}", type_of_sublist);
 
     let mines = ["·*·*·", "··*··", "··*··", "·····"];
 
-    let type_of_sublist = sublist::sublist(&v1, &v2);
-
-    println!("{:?}", type_of_sublist);
-
-    let minesweeper = annotate(&mines);
+    let minesweeper = minesweeper::annotate(&mines);
     println!("{:?}", &minesweeper);
 }
 
