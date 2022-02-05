@@ -78,9 +78,23 @@ fn main() {
         println!("{:?}", mine_row);
     }
 
-    let mines = [" * * ", "  *  ", "  *  ", "     "];
-
-    let splitted: Vec<&str> = mines.split("").collect();
+    // let mines = [" * * ", "  *  ", "  *  ", "     "];
+    //
+    // let mut mine_mat: Vec<Vec<&str>> = Vec::new();
+    //
+    // for row in mines {
+    //     let splitted: Vec<&str> = row.split("").collect();
+    //     mine_mat.push(splitted);
+    // }
+    //
+    // let mut mines: Vec<String> = Vec::new();
+    //
+    // for mat_row in mine_mat {
+    //     let joined_str = mat_row.join("");
+    //     mines.push(joined_str);
+    // }
+    //
+    // println!("{:?}", mines);
 }
 
 //          · * · * ·

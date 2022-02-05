@@ -10,26 +10,19 @@ pub fn annotate(minefield: &[&str]) -> Vec<String> {
 
     for (j, y) in minefield_mat.iter().enumerate() {
         for (i, x) in y.iter().enumerate() {
-            if !contains_asterix(x) {
+            if !contains_asterix(*x) {
                 let total_count = count_diagnol(&mine_field, i, j)
                     + count_vertical(&mine_field, i, j)
                     + count_horizontal(&mine_field, i, j);
                 let desired_character = get_desired_char_for_mine(&total_count);
-                mine_field[j][i] = Box::leak(desired_character.into_boxed_str());
+                if total_count > 0 {
+                    mine_field[j][i] = Box::leak(desired_character.into_boxed_str());
+                }
             }
         }
     }
 
-    println!("{:?}", mine_field);
-
-    mine_field
-        .iter()
-        .map(|row| {
-            let to_return = row.join("");
-            println!("{}", to_return);
-            row.join("")
-        })
-        .collect()
+    mine_field.iter().map(|row| row.join("")).collect()
 }
 
 fn count_diagnol(mine_field: &Vec<Vec<&str>>, x: usize, y: usize) -> u8 {
