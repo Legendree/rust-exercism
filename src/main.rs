@@ -4,6 +4,7 @@ use time::{Duration, PrimitiveDateTime as DateTime};
 use crate::{clock::Clock, planet::Planet};
 
 pub mod clock;
+pub mod luhn;
 pub mod minesweeper;
 pub mod planet;
 pub mod sublist;
@@ -95,6 +96,12 @@ fn main() {
     // }
     //
     // println!("{:?}", mines);
+
+    let credit_card = "059";
+
+    let is_credit_valid = luhn::is_valid(credit_card);
+
+    println!("{}", is_credit_valid);
 }
 
 //          · * · * ·
