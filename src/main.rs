@@ -7,6 +7,7 @@ pub mod clock;
 pub mod luhn;
 pub mod minesweeper;
 pub mod planet;
+pub mod poker;
 pub mod sublist;
 
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
@@ -102,6 +103,8 @@ fn main() {
     let is_credit_valid = luhn::is_valid(credit_card);
 
     println!("{}", is_credit_valid);
+
+    poker::winning_hands(&["4D 5S 6S 8D 3C", "2S 4C 7S 9H 10H", "3S 4S 5D 6H JH"]);
 }
 
 //          · * · * ·
