@@ -85,6 +85,8 @@ fn infer_hand_type<'a>(original_hand: &'a str) -> HandType {
     hand.sort();
     hand.reverse();
 
+    // println!("{:?}", hand);
+
     get_hand_type(&hand, original_hand)
 }
 
@@ -138,7 +140,7 @@ fn get_rank_by_char<'a>(c: &'a str) -> i8 {
     } else if c == "A" {
         14
     } else {
-        0
+        c.parse::<i8>().unwrap()
     }
 }
 
