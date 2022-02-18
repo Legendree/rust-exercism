@@ -1,4 +1,7 @@
-use std::cmp::{Ordering, PartialEq};
+use std::{
+    cmp::{Ordering, PartialEq},
+    collections::HashMap,
+};
 
 #[derive(Debug)]
 struct Card<'a> {
@@ -38,7 +41,7 @@ impl<'a> Ord for Card<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 enum HandType<'a> {
     FiveOfKind(&'a str),
     StraightFlush(&'a str),
@@ -57,12 +60,27 @@ enum HandType<'a> {
 /// Note the type signature: this function should return _the same_ reference to
 /// the winning hand(s) as were passed in, not reconstructed strings which happen to be equal.
 pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
+    let mut hand_map: HashMap<i8, Vec<&'a str>> = HashMap::new();
+
     for hand in hands {
         let hand_type = infer_hand_type(*hand);
-        println!("{:?}", hand_type);
+        // println!("{:?}", hand_type);
+        let hand_rank = get_hand_rank(&hand_type, hand);
+        let hands_vec = hand_map.entry(hand_rank).or_insert(vec![*hand]);
+        hands_vec.push(*hand);
     }
 
-    return vec![""];
+    let mut strongest_rank = 0;
+
+    for rank in hand_map.keys() {
+        if *rank > strongest_rank {
+            strongest_rank = *rank;
+        }
+    }
+
+    println!("{:?}", hand_map);
+
+    return hand_map.get(&strongest_rank).unwrap().to_vec();
 }
 
 fn infer_hand_type<'a>(original_hand: &'a str) -> HandType {
@@ -149,4 +167,28 @@ fn is_hand_same_symbol(hand: &Vec<Card>) -> bool {
         && hand[1].symbol == hand[2].symbol
         && hand[2].symbol == hand[3].symbol
         && hand[3].symbol == hand[4].symbol
+}
+
+fn get_hand_rank<'a>(hand_type: &HandType, hand: &'a str) -> i8 {
+    if *hand_type == HandType::FiveOfKind(hand) {
+        11;
+    } else if *hand_type == HandType::StraightFlush(hand) {
+        10;
+    } else if *hand_type == HandType::FourOfKind(hand) {
+        9;
+    } else if *hand_type == HandType::FullHouse(hand) {
+        8;
+    } else if *hand_type == HandType::Flush(hand) {
+        7;
+    } else if *hand_type == HandType::Straight(hand) {
+        6;
+    } else if *hand_type == HandType::ThreeOfKind(hand) {
+        5;
+    } else if *hand_type == HandType::TwoPair(hand) {
+        4;
+    } else if *hand_type == HandType::OnePair(hand) {
+        3;
+    }
+
+    0
 }
