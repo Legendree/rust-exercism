@@ -104,7 +104,7 @@ fn main() {
 
     println!("{}", is_credit_valid);
 
-    let hands = poker::winning_hands(&["3S 4S 5D 6H JH", "3S 4S 5D 6H JH", "3S 4S 5D 6H JH"]);
+    let hands = poker::winning_hands(&["2S 8H 2H 8D JH", "4S 5H 4C 8S 4H"]);
 
     println!("{:?}", hands);
 }

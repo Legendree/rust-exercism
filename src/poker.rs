@@ -29,6 +29,30 @@ impl<'a> PartialOrd for Card<'a> {
         let other_rank_parsed = other.rank;
         rank_parsed.partial_cmp(&other_rank_parsed)
     }
+
+    fn lt(&self, other: &Self) -> bool {
+        let rank_parsed = self.rank;
+        let other_rank_parsed = other.rank;
+        rank_parsed.lt(&other_rank_parsed)
+    }
+
+    fn le(&self, other: &Self) -> bool {
+        let rank_parsed = self.rank;
+        let other_rank_parsed = other.rank;
+        rank_parsed.le(&other_rank_parsed)
+    }
+
+    fn gt(&self, other: &Self) -> bool {
+        let rank_parsed = self.rank;
+        let other_rank_parsed = other.rank;
+        rank_parsed.gt(&other_rank_parsed)
+    }
+
+    fn ge(&self, other: &Self) -> bool {
+        let rank_parsed = self.rank;
+        let other_rank_parsed = other.rank;
+        rank_parsed.ge(&other_rank_parsed)
+    }
 }
 
 impl<'a> Eq for Card<'a> {}
@@ -63,11 +87,12 @@ pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
     let mut hand_map: HashMap<i8, Vec<&'a str>> = HashMap::new();
 
     for hand in hands {
-        let hand_type = infer_hand_type(*hand);
-        // println!("{:?}", hand_type);
+        let hand_type = infer_hand_type(hand);
+
         let hand_rank = get_hand_rank(&hand_type, hand);
-        let hands_vec = hand_map.entry(hand_rank).or_insert(vec![*hand]);
-        hands_vec.push(*hand);
+        println!("{:?}", hand_type);
+        let hands_vec = hand_map.entry(hand_rank).or_insert(vec![]);
+        hands_vec.push(hand);
     }
 
     let mut strongest_rank = 0;
@@ -78,9 +103,23 @@ pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
         }
     }
 
-    println!("{:?}", hand_map);
+    let hands = hand_map.get(&strongest_rank).unwrap().to_vec();
 
-    return hand_map.get(&strongest_rank).unwrap().to_vec();
+    let mut strongest_hands: Vec<&str> = Vec::new();
+    let mut highest = 0;
+
+    for hand in hands {
+        let card_rank = get_card_sum(hand);
+
+        if card_rank > highest {
+            highest = card_rank;
+            strongest_hands = vec![hand];
+        } else if card_rank == highest {
+            strongest_hands.push(hand)
+        }
+    }
+
+    return strongest_hands;
 }
 
 fn infer_hand_type<'a>(original_hand: &'a str) -> HandType {
@@ -92,9 +131,20 @@ fn infer_hand_type<'a>(original_hand: &'a str) -> HandType {
         let mut splitted_card: Vec<&str> = card.split("").collect();
         splitted_card = splitted_card[1..splitted_card.len() - 1].to_vec();
 
+        println!("{:?}", splitted_card);
+
+        let card = if splitted_card.len() > 2 {
+            (
+                format!("{}{}", splitted_card[0], splitted_card[1]),
+                splitted_card[2],
+            )
+        } else {
+            (splitted_card[0].to_string(), splitted_card[1])
+        };
+
         let card = Card {
-            rank: get_rank_by_char(splitted_card[0]),
-            symbol: splitted_card[1],
+            rank: get_rank_by_char(&card.0),
+            symbol: card.1,
         };
 
         hand.push(card);
@@ -103,7 +153,7 @@ fn infer_hand_type<'a>(original_hand: &'a str) -> HandType {
     hand.sort();
     hand.reverse();
 
-    // println!("{:?}", hand);
+    println!("{:?}", hand);
 
     get_hand_type(&hand, original_hand)
 }
@@ -122,26 +172,30 @@ fn get_hand_type<'a>(hand: &Vec<Card>, original_hand: &'a str) -> HandType<'a> {
         && is_hand_same_symbol(hand)
     {
         HandType::StraightFlush(original_hand)
-    } else if first_result == 0 && second_result == 0 && third_result == 0 {
-        HandType::FourOfKind(original_hand)
-    } else if first_result == 0 && second_result == 0 && third_result != 0 && fourth_result == 0 {
-        HandType::FullHouse(original_hand)
-    } else if first_result > second_result
-        && second_result > third_result
-        && third_result > fourth_result
-        && is_hand_same_symbol(hand)
+    } else if (first_result == 0 && second_result == 0 && third_result == 0)
+        || (second_result == 0 && third_result == 0 && fourth_result == 0)
     {
+        HandType::FourOfKind(original_hand)
+    } else if (first_result == 0 && second_result == 0 && third_result != 0 && fourth_result == 0)
+        || (fourth_result == 0 && third_result == 0 && second_result != 0 && first_result == 0)
+    {
+        HandType::FullHouse(original_hand)
+    } else if is_hand_same_symbol(hand) {
         HandType::Flush(original_hand)
     } else if first_result == second_result
         && second_result == third_result
         && third_result == fourth_result
     {
         HandType::Straight(original_hand)
-    } else if first_result == 0 && second_result == 0 && third_result != 0 && fourth_result != 0 {
+    } else if (first_result == 0 && second_result == 0 && third_result != 0 && fourth_result != 0)
+        || (first_result != 0 && second_result != 0 && third_result == 0 && fourth_result == 0)
+    {
         HandType::ThreeOfKind(original_hand)
-    } else if first_result == 0 && second_result != 0 && third_result == 0 && fourth_result != 0 {
+    } else if (first_result == 0 && second_result != 0 && third_result == 0 && fourth_result != 0)
+        || (first_result != 0 && second_result == 0 && third_result != 0 && fourth_result == 0)
+    {
         HandType::TwoPair(original_hand)
-    } else if first_result == 0 && second_result != 0 && third_result != 0 && fourth_result != 0 {
+    } else if first_result == 0 || second_result == 0 || third_result == 0 || fourth_result == 0 {
         HandType::OnePair(original_hand)
     } else {
         HandType::HighCard(original_hand)
@@ -171,24 +225,37 @@ fn is_hand_same_symbol(hand: &Vec<Card>) -> bool {
 
 fn get_hand_rank<'a>(hand_type: &HandType, hand: &'a str) -> i8 {
     if *hand_type == HandType::FiveOfKind(hand) {
-        11;
+        return 11;
     } else if *hand_type == HandType::StraightFlush(hand) {
-        10;
+        return 10;
     } else if *hand_type == HandType::FourOfKind(hand) {
-        9;
+        return 9;
     } else if *hand_type == HandType::FullHouse(hand) {
-        8;
+        return 8;
     } else if *hand_type == HandType::Flush(hand) {
-        7;
+        return 7;
     } else if *hand_type == HandType::Straight(hand) {
-        6;
+        return 6;
     } else if *hand_type == HandType::ThreeOfKind(hand) {
-        5;
+        return 5;
     } else if *hand_type == HandType::TwoPair(hand) {
-        4;
+        return 4;
     } else if *hand_type == HandType::OnePair(hand) {
-        3;
+        return 3;
     }
 
     0
+}
+
+fn get_card_sum<'a>(hand: &'a str) -> i8 {
+    let cards: Vec<&str> = hand.split(" ").collect();
+
+    let mut total_sum: i8 = 0;
+
+    for card in cards {
+        let card_split: Vec<&str> = card.split("").collect();
+        total_sum += get_rank_by_char(card_split[1]);
+    }
+
+    total_sum
 }
